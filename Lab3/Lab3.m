@@ -376,5 +376,105 @@ t = 1:0.025:6;
 
 x = @(t) sin(t.^2 - 10.* t + 3);
 
-graph = plot(x, t); grid;
+x = x(t);
 
+graph = plot(t, x); grid;
+
+[trainInd, valInd] = divideind(size(x,2), 1:121, 122:2401);
+
+Trx = t(trainInd);
+Valx = t(valInd);
+
+Try = x(trainInd);
+Valy = x(valInd);
+
+net = feedforwardnet(10);
+configure(net, [1, 6], [-1, 1]);
+
+net.layers{2}.transferFcn = 'tansig';
+net.trainFcn = 'traingdx';
+net.divideFcn = 'divideind';
+
+net.divideParam.trainInd = 1:size(Trx, 2);
+net.divideParam.valInd = size(Trx, 2) + 1:size(Valx, 2);
+net.divideParam.testInd = [];
+
+display(net);
+view(net);
+
+init(net);
+
+net.trainParam.epochs = 600;
+net.trainParam.max_fail = 600;
+net.trainParam.goal = 1e-5;
+
+P = [Trx, Valx];
+T = [Try, Valy];
+
+[net, tr] = train(net, P, T);
+
+plotperf(tr);
+
+xr = sim(net, Trx);
+xv = sim(net, Valx);
+
+second_part = figure;
+graph = plot(t, x, Trx, xr, Valx, xv); grid;
+
+uiwait(second_part);
+
+% III часть
+
+clear;
+close all;
+
+t = 1:0.025:6;
+
+x = @(t) sin(t.^2 - 10.* t + 3);
+
+x = x(t);
+
+graph = plot(t, x); grid;
+
+[trainInd, valInd] = divideind(size(x,2), 1:121, 122:2401);
+
+Trx = t(trainInd);
+Valx = t(valInd);
+
+Try = x(trainInd);
+Valy = x(valInd);
+
+net = feedforwardnet(10);
+configure(net, [1, 6], [-1, 1]);
+
+net.layers{2}.transferFcn = 'tansig';
+net.trainFcn = 'trainoss';
+net.divideFcn = 'divideind';
+
+net.divideParam.trainInd = 1:size(Trx, 2);
+net.divideParam.valInd = size(Trx, 2) + 1:size(Valx, 2);
+net.divideParam.testInd = [];
+
+display(net);
+view(net);
+
+init(net);
+
+net.trainParam.epochs = 600;
+net.trainParam.max_fail = 600;
+net.trainParam.goal = 1e-5;
+
+P = [Trx, Valx];
+T = [Try, Valy];
+
+[net, tr] = train(net, P, T);
+
+plotperf(tr);
+
+xr = sim(net, Trx);
+xv = sim(net, Valx);
+
+third_part = figure;
+graph = plot(t, x, Trx, xr, Valx, xv); grid;
+
+uiwait(third_part);
